@@ -57,8 +57,14 @@ function getPromiseResult(source) {
  * [Promise.resolve(1), Promise.reject(2), Promise.resolve(3)]  => Promise fulfilled with 1
  * [Promise.reject(1), Promise.reject(2), Promise.reject(3)]    => Promise rejected
  */
-function getFirstResolvedPromiseResult(/* promises */) {
-  throw new Error('Not implemented');
+function getFirstResolvedPromiseResult(promises) {
+  const wrapped = promises.map((p) =>
+    Promise.resolve(p).then(
+      (v) => ({ value: v }),
+      () => new Promise(() => {})
+    )
+  );
+  return Promise.race(wrapped).then((obj) => obj.value);
 }
 
 /**
